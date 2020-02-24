@@ -23,8 +23,14 @@ print(f'Здравствуйте {surname} {name} {patronymic}\n'
 
 time_in_seconds = int(input('введите время в секундах: '))
 seconds = time_in_seconds % 60
+if seconds < 10:
+    seconds = '0' + str(seconds)
 minutes = (time_in_seconds % 60**2) // 60
+if minutes < 10:
+    minutes = '0' + str(minutes)
 hours = time_in_seconds // 60**2
+if hours < 10:
+    hours = '0' + str(hours)
 
 print(f'{hours}:{minutes}:{seconds}')
 
@@ -71,16 +77,16 @@ if revenue > costs:
     profitability = (profit/revenue) * 100
     number_of_employees = int(input('Введите численность сотрудников фирмы: '))
     firm_profit_per_employee = profit / number_of_employees
-    print(f'Ваша фирма отработала с прибылью = {profit}\n'
+    print(f'Ваша фирма отработала с прибылью = {round(profit, 2)}\n'
           f'Рентабельность вашей фирмы (прибыль/выручку * 100%)'
-          f'= {profitability}\n'
+          f'= {round(profitability, 2)}\n'
           f'Прибыль фирмы в расчете на одного сотрудника = '
-          f'{firm_profit_per_employee}')
+          f'{round(firm_profit_per_employee, 2)}')
 elif revenue == costs:
     print('Прибыль вашей фирмы = 0')
 else:
     lesion = costs - revenue
-    print(f'Ваша фирма отработала с убытком = {lesion}')
+    print(f'Ваша фирма отработала с убытком = {round(lesion, 2)}')
 
 """
 6. Спортсмен занимается ежедневными пробежками.
