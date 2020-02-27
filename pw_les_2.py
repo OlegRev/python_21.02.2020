@@ -109,19 +109,37 @@ print(exemple_list)
 product_list = []
 product_structure = ['Название', 'Цена', 'Количество', 'Единица измерения']
 user_input = input('Введите количество наименований товаров которое вы хотите добавить: ')
+product_dict = {}
+name_list = []
+price_list = []
+amt_list = []
+units_list = []
+analytic = [name_list, price_list, amt_list, units_list]
+item = 0
 
 while not user_input.isdigit():
     user_input = input('Введите целое не отрицательное количество наименований товаров: ')
 for num in range(int(user_input)):
     product_name = input(f'{product_structure[0]}: ')
+    name_list.append(product_name)
     product_price = input(f'{product_structure[1]}: ')
+
     while not product_price.isdigit():
-        product_price = input(f'{product_structure[1]}: ')
+        product_price = input(f'{product_structure[1]:}: ')
+    price_list.append(product_price)
     product_amt = input(f'{product_structure[2]}: ')
     while not product_amt.isdigit():
         product_amt = input(f'{product_structure[2]}: ')
+    amt_list.append(product_amt)
     product_units = input(f'{product_structure[3]}: ')
-    product_list.append((num, {product_structure[0]: product_name, product_structure[1]: int(product_price),
-                                product_structure[2]: int(product_amt), product_structure[3]: product_units}))
+    units_list.append(product_units)
+    product_list.append((num +1, {product_structure[0]: product_name, product_structure[1]: int(product_price),
+                                  product_structure[2]: int(product_amt), product_structure[3]: product_units}))
+
+for itm in product_structure:
+    product_dict.update({itm: analytic[item]})
+    item += 1
 for itm in product_list:
+    print(itm)
+for itm in product_dict.items():
     print(itm)
