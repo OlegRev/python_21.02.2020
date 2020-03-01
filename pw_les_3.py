@@ -116,7 +116,7 @@ def digits_items_sum(digits):
     """ Функция обработки строки , принимаемая списком и возвращении суммы всех чисел в списке"""
     items_digits = []
     while digits:
-        if digits[-1] == 'q':
+        if digits[-1].lower() == 'q':
             global Exit
             Exit = False
             digits.pop()
@@ -133,7 +133,7 @@ total_amount = 0
 Exit = True
 
 while Exit:
-    user_input = input('Строку чисел, разделенных пробелом: ').split(' ')
+    user_input = input('Строку чисел, разделенных пробелом(для выхода необходимо ввести: q): ').split(' ')
     result = digits_items_sum(user_input)
     print(f'Сумма только что введеных чисел: {result}')
     total_amount += result
