@@ -1,0 +1,6 @@
+Ivanov 13000
+Petrov 20000
+Sidorov 23000
+Viktorov 30000
+Swodniw 10
+Evolesusnepo 100000
