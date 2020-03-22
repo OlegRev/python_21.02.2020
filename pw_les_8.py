@@ -61,7 +61,7 @@ print(d)
 d = Data.to_extract(data_1)
 print(d)
 d = Data.to_extract(data_0)
-print(d)
+print(f'{d}\n')
 
 """2. Создайте собственный класс-исключение, обрабатывающий ситуацию деления на нуль. Проверьте его работу на данных, 
 вводимых пользователем. При вводе пользователем нуля в качестве делителя программа должна корректно обработать эту 
@@ -88,12 +88,17 @@ class Division:
                 return f'Result: {self.divisible} / {self.divider} = {round(self.divisible / self.divider, 2)}'
         except Zero_except as err:
             return f' You input divider = {self.divider}'
+        except TypeError:
+            return f' You input number = {type(self.divider)}'
 
 
 res_0 = Division(130, 13)
 res_1 = Division(130, 0)
+res_2 = Division("130", '5')
+
 print(res_1.get_res_division)
 print(res_0.get_res_division)
+print(f'{res_2.get_res_division}\n')
 
 """3. Создайте собственный класс-исключение, который должен проверять содержимое списка на наличие только чисел.
 Проверить работу исключения на реальном примере. Необходимо запрашивать у пользователя данные и заполнять список 
@@ -125,11 +130,11 @@ class Digits_items:
 
             try:
                 self.user_input = input('Введите число.(для выходы введите: stop): ')
-                if str(self.user_input).lower() == 'stop':
+                if self.user_input.lower() == 'stop':
                     print(self.result)
                     break
                 if self.user_input.isdigit():
-                    self.result.append(self.user_input)
+                    self.result.append(int(self.user_input))
                 elif isinstance(self.user_input, str):
                     raise Digit_except('Input type error')
 
@@ -138,7 +143,7 @@ class Digits_items:
 
 
 res = Digits_items().get_digit
-
+print()
 """4. Начните работу над проектом «Склад оргтехники». Создайте класс, описывающий склад. А также класс «Оргтехника»,
 который будет базовым для классов-наследников. Эти классы — конкретные типы оргтехники (принтер, сканер, ксерокс). 
 В базовом классе определить параметры, общие для приведенных типов. В классах-наследниках реализовать параметры,
@@ -151,69 +156,151 @@ res = Digits_items().get_digit
 Подсказка: постарайтесь по возможности реализовать в проекте «Склад оргтехники» максимум возможностей,
 изученных на уроках по ООП.
 """
+from abc import abstractmethod
+
+
+class ProductNotFound(Exception):
+    def __init__(self, txt):
+        self.txt = txt
 
 
 class Warehouse:
-    def __init__(self, name, external_logistics_departament, internal_logistics_departament, sales_departament):
+    def __init__(self, name, address, external_logistics_departament_list=None,
+                 internal_logistics_departament_list=None, sales_departament_list=None):
+        if sales_departament_list is None:
+            sales_departament_list = [{'departament': 'sales_departament'}, ]
+        if internal_logistics_departament_list is None:
+            internal_logistics_departament_list = [{'departament': 'internal_logistics_departament'}, ]
+        if external_logistics_departament_list is None:
+            external_logistics_departament_list = [{'departament': 'external_logistics_departament_list'}, ]
         self.name = name
-        self.external_logistics_departament = external_logistics_departament
-        self.internal_logistics_departament = internal_logistics_departament
-        self.sales_departament = sales_departament
+        self.address = address
+        self.external_logistics_departament_list = external_logistics_departament_list
+        self.internal_logistics_departament_list = internal_logistics_departament_list
+        self.sales_departament_list = sales_departament_list
 
+    def reception_office_equipment(self, obj):
+        return self.external_logistics_departament_list.append(obj)
 
+    def transfer_to_departament(self, obj, departament_out, departament_in):
+        try:
+            if obj not in departament_out:
+                raise ProductNotFound(f'Товар не найден в передающем департаменте')
+
+            departament_in.append(obj)
+            departament_out.remove(obj)
+            return f'Офисная техника {obj.model_name} в количестве {obj.amount}\n' \
+                   f'Передано из департамента {departament_out[0]["departament"]}\n' \
+                   f'в департамент {departament_in[0]["departament"]}'
+
+        except ProductNotFound as err:
+            return err
+        except KeyError:
+            return f'Разные объекты нельзя сложить! '
+
+    @staticmethod
+    def get_amount(d1, d2):
+        return {k: v for k, v in d1.items() if k in d2 and v != d2[k]}
 
 
 class OfficeEquipment:
-    def __init__(self, name, amount, paper_size, manufacture_company, production_year):
-        self.name = name
+    def __init__(self, model_name, amount, paper_size, manufacture_company, production_year):
+        self.model_name = model_name
         self.amount = amount
         self.paper_size = paper_size
         self.manufacture_company = manufacture_company
         self.production_year = production_year
 
+    @abstractmethod
     def full_product_description(self):
         pass
 
 
-
 class Printer(OfficeEquipment):
-    def __init__(self, name, paper_size, amount, manufacture_company, production_year,
+    def __init__(self, model_name, amount, paper_size, manufacture_company, production_year,
                  printing_technology):
-        super().__init__(name, amount, paper_size, manufacture_company, production_year)
+        super().__init__(model_name, amount, paper_size, manufacture_company, production_year)
         self.printing_technology = printing_technology
 
     @property
     def full_product_description(self):
-        return f'{self.name} | {self.paper_size} | {self.amount} |\n{self.manufacture_company} | ' \
-               f'{self.production_year} |\n{self.printing_technology}\n'
+        return {'model_name': self.model_name, 'amount': self.amount, 'paper_size': self.paper_size,
+                'manufacture_company': self.manufacture_company, 'production_year': self.production_year,
+                'printing_technology': self.printing_technology}
 
 
 class Scanner(OfficeEquipment):
-    def __init__(self, name, amount, paper_size, manufacture_company, production_year,
+    def __init__(self, model_name, amount, paper_size, manufacture_company, production_year,
                  scanner_type, sensor_type):
-        super().__init__(name, amount, paper_size, manufacture_company, production_year)
+        super().__init__(model_name, amount, paper_size, manufacture_company, production_year)
         self.scanner_type = scanner_type
         self.sensor_type = sensor_type
 
     @property
     def full_product_description(self):
-        return f'{self.name} | {self.paper_size} | {self.amount} |\n{self.manufacture_company} | ' \
-               f'{self.production_year} |\n{self.scanner_type} | {self.sensor_type}\n'
+        return {'model_name': self.model_name, 'amount': self.amount, 'paper_size': self.paper_size,
+                'manufacture_company': self.manufacture_company, 'production_year': self.production_year,
+                'scanner_type': self.scanner_type, 'sensor_type': self.sensor_type}
 
 
 class Copier(OfficeEquipment):
-    def __init__(self, name, amount, paper_size, manufacture_company, production_year,
-                 print_speed, cartridge_resource, is_color):
-        super().__init__(name, amount, paper_size, manufacture_company, production_year)
+    def __init__(self, model_name, amount, paper_size, manufacture_company, production_year,
+                 print_speed, cartridge_resource, is_color=False):
+        super().__init__(model_name, amount, paper_size, manufacture_company, production_year)
         self.print_speed = print_speed
         self.cartridge_resource = cartridge_resource
         self.is_color = is_color
 
     @property
     def full_product_description(self):
-        return f'{self.name} | {self.paper_size} | {self.amount} |\n{self.manufacture_company} | ' \
-               f'{self.production_year} |\n{self.print_speed} | {self.cartridge_resource} | is_color: {self.is_color}\n'
+        return {'model_name': self.model_name, 'amount': self.amount, 'paper_size': self.paper_size,
+                'manufacture_company': self.manufacture_company, 'production_year': self.production_year,
+                'print_speed': self.print_speed, 'cartridge_resource': self.cartridge_resource,
+                'is_color': self.is_color}
 
+
+warehouse = Warehouse('Sklad', '')
+p_0 = Printer('SLaserP', 25, ['A4', 'A3'], 'samsung', 2019, 'laser_type')
+p_1 = Printer('SLaserP', 25, 'A4', 'samsung', 2019, 'laser_type')
+s_0 = Scanner('SLaserS', 25, 'A4', 'samsung', 2019, 'laser_type', 'sensor_0')
+s_1 = Scanner('SLaserS', 25, 'A4', 'samsung', 2019, 'laser_type', 'sensor_1')
+s_3 = Scanner('SLaserS', 225, 'A4', 'samsung', 2019, 'laser_type', 'sensor_0')
+c_0 = Copier('SLaserC', 22, 'A4', 'samsung', 2019, '1 in second', 1024, True)
+c_3 = Copier('SLaserC', 25, ['A4', 'A3'], 'samsung', 2019, '1 in second', 1024)
+
+print(s_3.full_product_description)
+
+print(warehouse.external_logistics_departament_list)
+
+warehouse.reception_office_equipment(p_0)
+warehouse.reception_office_equipment(p_1)
+warehouse.reception_office_equipment(s_0)
+warehouse.reception_office_equipment(s_1)
+warehouse.reception_office_equipment(s_3)
+warehouse.reception_office_equipment(c_0)
+warehouse.reception_office_equipment(c_3)
+
+print(f'{warehouse.external_logistics_departament_list}\n{len(warehouse.external_logistics_departament_list)}')
+
+print(warehouse.transfer_to_departament(s_0, warehouse.external_logistics_departament_list,
+                                        warehouse.internal_logistics_departament_list))
+print(warehouse.transfer_to_departament(s_3, warehouse.external_logistics_departament_list,
+                                        warehouse.internal_logistics_departament_list))
+
+print(warehouse.transfer_to_departament(p_0, warehouse.external_logistics_departament_list,
+                                        warehouse.sales_departament_list))
+print(warehouse.transfer_to_departament(c_0, warehouse.external_logistics_departament_list,
+                                        warehouse.sales_departament_list))
+
+print(f'{"*" * 30}\n{warehouse.internal_logistics_departament_list}\n'
+      f'{warehouse.internal_logistics_departament_list[1].full_product_description}\n'
+      f'{warehouse.internal_logistics_departament_list[2].full_product_description}\n')
+print(f'{"*" * 30}\n{warehouse.sales_departament_list}\n'
+      f'{warehouse.sales_departament_list[1].full_product_description}\n'
+      f'{warehouse.sales_departament_list[2].full_product_description}')
+print(f'{"*" * 30}\n{warehouse.external_logistics_departament_list}\n'
+      f'{len(warehouse.external_logistics_departament_list)}')
+print()
 
 """7. Реализовать проект «Операции с комплексными числами». Создайте класс «Комплексное число»,
 реализуйте перегрузку методов сложения и умножения комплексных чисел. Проверьте работу проекта, 
